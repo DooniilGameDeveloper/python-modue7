@@ -4,7 +4,7 @@ services:
     container_name: python-app
     image: python-app
     ports: 
-      - 3000:3000
+      - 8900:8900
     working_dir: /app
     command: 'main.py'
     restart: always
