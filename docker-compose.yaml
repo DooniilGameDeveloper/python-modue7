@@ -1,0 +1,13 @@
+version: '3'
+services:
+  app:
+    container_name: python-app
+    image: python-app
+    ports: 
+      - 3000:3000
+    working_dir: /app
+    command: 'main.py'
+    restart: always
+    stdin_open: true
+    tty: true
+    network_mode: host
