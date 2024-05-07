@@ -13,9 +13,12 @@ def do_ping_sweep(ip, num_of_host):
     scanned_ip = network_ip + str(int(ip_parts[3]) + num_of_host)
     if int(scanned_ip.split('.')[-1]) > 255:
         return 'Incorrect IP'
-    response = os.popen(f'ping -c 1 {scanned_ip}') 
+    response = os.popen(f'ping -n 1 {scanned_ip}') 
     res = response.readlines()
-    return f"[#] Result of scanning: {scanned_ip} [#]\n{res[1]}"
+    try:
+        return f"[#] Result of scanning: {scanned_ip} [#]\n{res[2]}"
+    except:
+        return f"[#] Result of scanning: {scanned_ip} [#]\nNone"
 
 
 def sent_http_request(target, method, headers=None, payload=None):
@@ -50,13 +53,14 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 key, value = attribute.split('=')
                 keys[key] = value
             
-            message: str = do_ping_sweep(keys['target'], int(keys['count']))
-
-            self.send_response(200, message.encode('utf-8'))
+            messages: list[str] = list()
+            for i in range(1, int(keys['count'])):
+                messages.append(do_ping_sweep(keys['target'], i))
+                
+            self.send_response(200)
             self.send_header('Content-Type', 'text/plain; charset=utf-8')
             self.end_headers()
-            self.wfile.write(message.encode('utf-8'))
-
+            self.wfile.write('\n'.join(messages).encode('utf-8'))
 
     def do_POST(self):
         parsed_path = parse.urlparse(self.path)
